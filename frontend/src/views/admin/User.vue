@@ -36,7 +36,9 @@
           <el-input v-model="form.realName" />
         </el-form-item>
         <el-form-item label="部门" prop="dept">
-          <el-input v-model="form.dept" />
+          <el-select v-model="form.dept" placeholder="请选择部门">
+            <el-option v-for="dept in deptList" :key="dept.deptId" :label="dept.deptName" :value="dept.deptName" />
+          </el-select>
         </el-form-item>
         <el-form-item label="职位" prop="position">
           <el-input v-model="form.position" />
@@ -63,7 +65,7 @@
 </template>
 
 <script>
-import { getAllUsers, addUser, updateUser, deleteUser } from '@/api'
+import { getAllUsers, addUser, updateUser, deleteUser, getAllDepts } from '@/api'
 
 export default {
   name: 'AdminUser',
@@ -71,18 +73,21 @@ export default {
     return {
       loading: false,
       tableData: [],
+      deptList: [],
       dialogVisible: false,
       dialogTitle: '',
       form: {},
       rules: {
         username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
         password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-        realName: [{ required: true, message: '请输入姓名', trigger: 'blur' }]
+        realName: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+        dept: [{ required: true, message: '请选择部门', trigger: 'change' }]
       }
     }
   },
   created() {
     this.loadData()
+    this.loadDepts()
   },
   methods: {
     async loadData() {
@@ -91,8 +96,12 @@ export default {
       this.tableData = res.data
       this.loading = false
     },
+    async loadDepts() {
+      const res = await getAllDepts()
+      this.deptList = res.data
+    },
     handleAdd() {
-      this.form = { role: 'user', status: '1' }
+      this.form = { role: 'user', status: '1', dept: '' }
       this.dialogTitle = '新增员工'
       this.dialogVisible = true
     },

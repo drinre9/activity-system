@@ -5,12 +5,15 @@ import AdminLayout from '../views/admin/Layout.vue'
 import UserLayout from '../views/user/Layout.vue'
 import AdminActivity from '../views/admin/Activity.vue'
 import AdminUser from '../views/admin/User.vue'
+import AdminDept from '../views/admin/Dept.vue'
 import AdminRegistration from '../views/admin/Registration.vue'
 import AdminFeedback from '../views/admin/Feedback.vue'
+import AdminMessage from '../views/admin/Message.vue'
 import UserActivity from '../views/user/Activity.vue'
 import UserMyRegistration from '../views/user/MyRegistration.vue'
 import UserFeedback from '../views/user/Feedback.vue'
 import UserProfile from '../views/user/Profile.vue'
+import UserMessage from '../views/user/Message.vue'
 
 Vue.use(VueRouter)
 
@@ -30,8 +33,10 @@ const routes = [
     children: [
       { path: 'activity', component: AdminActivity },
       { path: 'user', component: AdminUser },
+      { path: 'dept', component: AdminDept },
       { path: 'registration', component: AdminRegistration },
-      { path: 'feedback', component: AdminFeedback }
+      { path: 'feedback', component: AdminFeedback },
+      { path: 'message', component: AdminMessage }
     ]
   },
   {
@@ -41,6 +46,7 @@ const routes = [
       { path: 'activity', component: UserActivity },
       { path: 'my-registration', component: UserMyRegistration },
       { path: 'feedback', component: UserFeedback },
+      { path: 'message', component: UserMessage },
       { path: 'profile', component: UserProfile }
     ]
   }

@@ -35,6 +35,7 @@
           {{ scope.row.currentParticipants }}/{{ scope.row.maxParticipants }}
         </template>
       </el-table-column>
+      <el-table-column prop="deptNames" label="可参加部门" min-width="150" show-overflow-tooltip />
       <el-table-column prop="status" label="状态" width="80">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.status === '0'" type="success">报名中</el-tag>
@@ -43,15 +44,16 @@
           <el-tag v-else type="danger">已取消</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="180">
+      <el-table-column label="操作" width="220">
         <template slot-scope="scope">
           <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
+          <el-button size="mini" @click="handleViewComments(scope.row)">评论</el-button>
           <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="600px">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="650px">
       <el-form :model="form" :rules="rules" ref="form" label-width="100px">
         <el-form-item label="活动名称" prop="activityName">
           <el-input v-model="form.activityName" />
@@ -71,6 +73,11 @@
         </el-form-item>
         <el-form-item label="最大人数" prop="maxParticipants">
           <el-input-number v-model="form.maxParticipants" :min="1" />
+        </el-form-item>
+        <el-form-item label="可参加部门" prop="deptIds">
+          <el-select v-model="form.selectedDepts" multiple placeholder="请选择可参加的部门" @change="handleDeptChange">
+            <el-option v-for="dept in deptList" :key="dept.deptId" :label="dept.deptName" :value="dept.deptId" />
+          </el-select>
         </el-form-item>
         <el-form-item label="开始时间" prop="startTime">
           <el-date-picker v-model="form.startTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" />
@@ -98,11 +105,29 @@
         <el-button type="primary" @click="submitForm">确定</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog title="活动评论" :visible.sync="commentDialogVisible" width="700px">
+      <div class="comment-list">
+        <div v-for="comment in commentList" :key="comment.commentId" class="comment-item">
+          <div class="comment-header">
+            <span class="comment-user">{{ comment.userName }}</span>
+            <span class="comment-dept">({{ comment.deptName }})</span>
+            <span class="comment-time">{{ formatTime(comment.createTime) }}</span>
+            <el-button size="mini" type="text" style="color: #f56c6c; margin-left: 10px;" @click="deleteComment(comment.commentId)">删除</el-button>
+          </div>
+          <div class="comment-content">{{ comment.content }}</div>
+        </div>
+        <div v-if="commentList.length === 0" style="color: #999; text-align: center; padding: 20px;">暂无评论</div>
+      </div>
+      <span slot="footer">
+        <el-button @click="commentDialogVisible = false">关闭</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getActivityList, addActivity, updateActivity, deleteActivity } from '@/api'
+import { getActivityList, addActivity, updateActivity, deleteActivity, getAllDepts, getComments, deleteComment } from '@/api'
 
 export default {
   name: 'AdminActivity',
@@ -110,6 +135,7 @@ export default {
     return {
       loading: false,
       tableData: [],
+      deptList: [],
       queryParams: {},
       dialogVisible: false,
       dialogTitle: '',
@@ -121,11 +147,15 @@ export default {
         startTime: [{ required: true, message: '请选择开始时间', trigger: 'change' }],
         maxParticipants: [{ required: true, message: '请输入最大人数', trigger: 'blur' }],
         status: [{ required: true, message: '请选择状态', trigger: 'change' }]
-      }
+      },
+      commentDialogVisible: false,
+      commentList: [],
+      currentActivityId: null
     }
   },
   created() {
     this.loadData()
+    this.loadDepts()
   },
   methods: {
     async loadData() {
@@ -138,6 +168,13 @@ export default {
       }
       this.loading = false
     },
+    async loadDepts() {
+      const res = await getAllDepts()
+      this.deptList = res.data
+    },
+    handleDeptChange(val) {
+      this.form.deptIds = val.join(',')
+    },
     handleQuery() {
       this.loadData()
     },
@@ -146,12 +183,12 @@ export default {
       this.loadData()
     },
     handleAdd() {
-      this.form = { status: '0', maxParticipants: 50, currentParticipants: 0 }
+      this.form = { status: '0', maxParticipants: 50, currentParticipants: 0, selectedDepts: [] }
       this.dialogTitle = '新增活动'
       this.dialogVisible = true
     },
     handleEdit(row) {
-      this.form = { ...row }
+      this.form = { ...row, selectedDepts: row.deptIds ? row.deptIds.split(',').map(d => parseInt(d)) : [] }
       this.dialogTitle = '编辑活动'
       this.dialogVisible = true
     },
@@ -180,6 +217,19 @@ export default {
       this.loadData()
       this.$message.success('删除成功')
     },
+    async handleViewComments(row) {
+      this.currentActivityId = row.activityId
+      const res = await getComments(row.activityId)
+      this.commentList = res.data
+      this.commentDialogVisible = true
+    },
+    async deleteComment(commentId) {
+      await this.$confirm('确认删除此评论?', '提示', { type: 'warning' })
+      await deleteComment(commentId)
+      const res = await getComments(this.currentActivityId)
+      this.commentList = res.data
+      this.$message.success('删除成功')
+    },
     formatTime(time) {
       if (!time) return '-'
       return time.replace('T', ' ').substring(0, 16)
@@ -191,5 +241,32 @@ export default {
 <style scoped>
 .query-form {
   margin-bottom: 15px;
+}
+.comment-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+.comment-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+.comment-header {
+  margin-bottom: 5px;
+}
+.comment-user {
+  font-weight: bold;
+  color: #409eff;
+}
+.comment-dept {
+  color: #999;
+  margin-left: 5px;
+}
+.comment-time {
+  color: #999;
+  margin-left: 10px;
+  font-size: 12px;
+}
+.comment-content {
+  color: #333;
 }
 </style>

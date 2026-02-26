@@ -11,9 +11,10 @@
           <i class="el-icon-tickets"></i>
           <span>我的报名</span>
         </el-menu-item>
-        <el-menu-item index="/user/feedback">
-          <i class="el-icon-chat-line-round"></i>
-          <span>活动反馈</span>
+        <el-menu-item index="/user/message">
+          <el-badge v-if="unreadCount > 0" :value="unreadCount" class="badge" />
+          <i class="el-icon-bell"></i>
+          <span>我的消息</span>
         </el-menu-item>
         <el-menu-item index="/user/profile">
           <i class="el-icon-user"></i>
@@ -34,12 +35,14 @@
 </template>
 
 <script>
-import { logout } from '@/api'
+import { logout, getUnreadCount } from '@/api'
 export default {
   name: 'UserLayout',
   data() {
     return {
-      user: JSON.parse(sessionStorage.getItem('user') || '{}')
+      user: JSON.parse(sessionStorage.getItem('user') || '{}'),
+      unreadCount: 0,
+      timer: null
     }
   },
   computed: {
@@ -47,7 +50,24 @@ export default {
       return this.$route.path
     }
   },
+  mounted() {
+    this.loadUnreadCount()
+    this.timer = setInterval(() => {
+      this.loadUnreadCount()
+    }, 30000)
+  },
+  beforeDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer)
+    }
+  },
   methods: {
+    async loadUnreadCount() {
+      try {
+        const res = await getUnreadCount()
+        this.unreadCount = res.data.count
+      } catch (e) {}
+    },
     async handleLogout() {
       await logout()
       sessionStorage.removeItem('user')
@@ -98,5 +118,10 @@ export default {
 .el-main {
   background: #f0f2f5;
   padding: 20px;
+}
+.badge {
+  position: absolute;
+  left: 60px;
+  top: 8px;
 }
 </style>

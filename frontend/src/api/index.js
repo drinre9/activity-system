@@ -183,3 +183,97 @@ export function deleteFeedback(id) {
     method: 'delete'
   })
 }
+
+export function getAllDepts() {
+  return request({
+    url: '/admin/depts',
+    method: 'get'
+  })
+}
+
+export function getDepts() {
+  return request({
+    url: '/depts',
+    method: 'get'
+  })
+}
+
+export function addDept(data) {
+  return request({
+    url: '/admin/dept',
+    method: 'post',
+    data
+  })
+}
+
+export function deleteDept(deptId) {
+  return request({
+    url: '/admin/dept/' + deptId,
+    method: 'delete'
+  })
+}
+
+export function getComments(activityId) {
+  return request({
+    url: '/activity/' + activityId + '/comments',
+    method: 'get'
+  })
+}
+
+export function addComment(data) {
+  return request({
+    url: '/user/comment',
+    method: 'post',
+    data
+  })
+}
+
+export function deleteComment(commentId) {
+  return request({
+    url: '/admin/comment/' + commentId,
+    method: 'delete'
+  })
+}
+
+export function getAllMessages() {
+  return request({
+    url: '/admin/messages',
+    method: 'get'
+  })
+}
+
+export function getMyMessages() {
+  return request({
+    url: '/user/messages',
+    method: 'get'
+  })
+}
+
+export function getUnreadCount() {
+  return request({
+    url: '/user/messages/unread',
+    method: 'get'
+  })
+}
+
+export function sendMessage(data) {
+  return request({
+    url: '/admin/message',
+    method: 'post',
+    data
+  })
+}
+
+export function deleteMessage(messageId) {
+  return request({
+    url: '/admin/message/' + messageId,
+    method: 'delete'
+  })
+}
+
+export function markAsRead(messageId) {
+  return request({
+    url: '/user/message/' + messageId + '/read',
+    method: 'post'
+  })
+}

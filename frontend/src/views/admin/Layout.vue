@@ -7,6 +7,10 @@
           <i class="el-icon-date"></i>
           <span>活动管理</span>
         </el-menu-item>
+        <el-menu-item index="/admin/dept">
+          <i class="el-icon-office-building"></i>
+          <span>部门管理</span>
+        </el-menu-item>
         <el-menu-item index="/admin/user">
           <i class="el-icon-user"></i>
           <span>员工管理</span>
@@ -15,9 +19,9 @@
           <i class="el-icon-tickets"></i>
           <span>报名管理</span>
         </el-menu-item>
-        <el-menu-item index="/admin/feedback">
-          <i class="el-icon-chat-line-round"></i>
-          <span>反馈管理</span>
+        <el-menu-item index="/admin/message">
+          <i class="el-icon-bell"></i>
+          <span>消息管理</span>
         </el-menu-item>
       </el-menu>
     </el-aside>

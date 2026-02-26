@@ -17,6 +17,8 @@ public class Activity {
     private Long createBy;
     private Date createTime;
     private Date updateTime;
+    private String deptIds;
+    private String deptNames;
 
     public Long getActivityId() { return activityId; }
     public void setActivityId(Long activityId) { this.activityId = activityId; }
@@ -46,4 +48,8 @@ public class Activity {
     public void setCreateTime(Date createTime) { this.createTime = createTime; }
     public Date getUpdateTime() { return updateTime; }
     public void setUpdateTime(Date updateTime) { this.updateTime = updateTime; }
+    public String getDeptIds() { return deptIds; }
+    public void setDeptIds(String deptIds) { this.deptIds = deptIds; }
+    public String getDeptNames() { return deptNames; }
+    public void setDeptNames(String deptNames) { this.deptNames = deptNames; }
 }
